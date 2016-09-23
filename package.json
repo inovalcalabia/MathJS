@@ -1,0 +1,17 @@
+{
+  "name": "MathGameJS",
+  "version": "0.0.1",
+  "main": "index.html",
+  "webkit": {
+    "plugin": true
+  },
+  "window": {
+    "title": "MathGameJS",
+    "icon": "link.png",
+    "toolbar": false,
+    "frame": true,
+    "width": 485,
+    "height": 810,
+    "resizable": false    
+  }
+}

@@ -28,6 +28,7 @@ var gameStatus = "";
 var startButton;
 var instructions;
 
+
 init = function()
 {
 	for(var i = 0;i<3;i++){
@@ -58,7 +59,6 @@ init = function()
 
 	hero= new circle(100,400,'red',20);
 
-	hero.update();
 	canvas.addEventListener('mousemove', function(evt) {
 		mouse.x = evt.x-(hero.getSize()/2)
 		mouse.y = evt.y-(hero.getSize()/2)
@@ -262,10 +262,6 @@ gameLoop = function()
 	}
 	scoretf.update();
 	hscoretf.update();
-	
-	
-	
-
 }
 
 init();

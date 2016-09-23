@@ -48,8 +48,7 @@ textField = function()
     this.color = "";
 	this.addText = function(tf,fontSize,fontName,x,y,color)
 	{
-		ctx.font = fontSize+"px "+fontName;
-		ctx.fillText(tf,x,y);
+		
 		this.currentTf = tf;
 		this.x = x;
 		this.y = y;
