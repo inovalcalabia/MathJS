@@ -161,7 +161,7 @@ showSmiley = function(bool)
 		TweenMax.to(ctx, 2, {onUpdate:function(){happySmiley.update()}});
 	}else
 	{
-		TweenMax.to(ctx, 2, {onUpdate:function(){sadSmiley.update()}});
+		TweenMax.to(ctx, 2, {onUpdate:function(){sadSmiley.update()},oncomplete:function(){gameStatus=""}});
 	}
 }
 

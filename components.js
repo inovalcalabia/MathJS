@@ -194,5 +194,3 @@ function newListener({target=null,clickCC=function(){},downCC=function(){},moveC
      var newListener = new listeners({target:target,clickCC:clickCC,downCC:downCC,moveCC:moveCC,upCC:upCC});
 }
 
-
-//ga
