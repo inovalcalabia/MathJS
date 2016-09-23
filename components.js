@@ -71,6 +71,7 @@ textField = function()
    		ctx.font = this.fSize+"px "+this.fName;
         ctx.fillStyle = this.color;
 		ctx.fillText(this.currentTf,this.x,this.y);
+       
    	}
 }
 textField.prototype = object;

@@ -3,7 +3,7 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var fps = 60;
 var previousMouse = 0;
-var speed = 2;
+var speed = 2.4;
 var firstDigit = "";
 var secondDigit = "";
 var thirdDigit = "";
@@ -11,11 +11,13 @@ var firstOperator = "";
 var secondOperator = "";
 var operator = ["*","/","+","-"];
 var score = 0;
+var hscore = 0;
 var correctAnswer = 0;
 var myAnswer = "";
 var listAnswers = [];
 var rects = [];
 var scoretf;
+var hscoretf;
 var question;
 var answers = [];
 var hero;
@@ -24,6 +26,7 @@ var happySmiley;
 var sadSmiley;
 var gameStatus = "";
 var startButton;
+var instructions;
 
 init = function()
 {
@@ -39,8 +42,10 @@ init = function()
 
 
 	scoretf = new textField();
-	scoretf.addText("Score: "+score,40,"Arial",160,780,'black');
+	scoretf.addText("Score: "+score,30,"Arial",25,780,'black');
 
+	hscoretf = new textField();
+	hscoretf.addText("High Score: "+ hscore,30,"Arial",250,780,"black");
 
 	for(i = 0; i<3;i++)
 	{
@@ -48,8 +53,6 @@ init = function()
 		answer.addText(""+parseInt(1+Math.random()*98), 50,"Arial",(160 * i)+ 65, -100,'black');
 		answer.status = false;
 		answers.push(answer);
-
-
 	}
 
 
@@ -67,8 +70,14 @@ init = function()
 
 	startButton = new button("assets/play_down.png","assets/play_up.png",canvas.width/2,canvas.height/2,215,71);
 	newListener({target:startButton,clickCC:function(){gameStatus="InGame"}});
+
+	instructions = new textField();
+	instructions.addText("instructions",25,"Arial",175,150,'black');
+
 	updateQuestion();
 	choices();
+	setHighScore();
+
 }
 problem = function()
 {
@@ -92,8 +101,24 @@ updateQuestion = function()
 	problem();
 	question.changeText("("+firstDigit+" "+firstOperator+" "+secondDigit+") "+secondOperator+" "+thirdDigit+" = ?");
 	correctAnswer = solve();
-	console.log(correctAnswer);
-
+	console.log("the correct answer: " + correctAnswer);
+}
+setHighScore = function()
+{
+	if(localStorage.highscore == undefined){
+		localStorage.setItem("highscore", hscore);
+	}else{
+		hscoretf.changeText("High Score: "+ localStorage.highscore);
+		hscore = localStorage.highscore;
+	}
+}
+checkHighScore= function()
+{
+	if(score > hscore)
+	{
+		localStorage.setItem("highscore", score);
+		setHighScore();
+	}
 }
 answerAnimation = function()
 {	
@@ -109,9 +134,11 @@ answerAnimation = function()
 					scoretf.changeText("Score: "+score);
 				}
 				else{
+					
 					score = 0; 
 					scoretf.changeText("Score: "+score);
 				}
+				checkHighScore();
 				showSmiley(checkAnswer());
 				updateQuestion();
 				choices();
@@ -158,10 +185,10 @@ showSmiley = function(bool)
 {
 	if(bool)
 	{
-		TweenMax.to(ctx, 2, {onUpdate:function(){happySmiley.update()}});
+		TweenMax.to(ctx, 1, {onUpdate:function(){happySmiley.update()}});
 	}else
 	{
-		TweenMax.to(ctx, 2, {onUpdate:function(){sadSmiley.update()},oncomplete:function(){gameStatus=""}});
+		TweenMax.to(ctx, 1, {onUpdate:function(){sadSmiley.update()},onComplete:function(){gameStatus=""}});
 	}
 }
 
@@ -169,6 +196,11 @@ showSmiley = function(bool)
 clearCanvas = function()
 {
 	ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+//clear high score
+clearHighScore = function()
+{
+	localStorage.setItem("highscore", 0);
 }
 //check the position of the mouse {left, middle, right}
 checkMousePosition = function(x)
@@ -207,8 +239,9 @@ gameLoop = function()
 		var currentMouse = checkMousePosition(hero.x);
 		if(previousMouse != currentMouse)
 		{
+			TweenMax.to(rects[previousMouse], .5, {y:800});
 			previousMouse = currentMouse;
-			TweenMax.to(rects[currentMouse], .5, {y:800});
+			TweenMax.to(rects[currentMouse], .5, {y:600});
 			myAnswer = listAnswers[currentMouse];
 		}
 		for(j = 0;j<3;j++)
@@ -221,13 +254,15 @@ gameLoop = function()
 		}
 		mouseFollowEase(mouse.x,mouse.y);
 		answerAnimation();
+		question.update();
 	}else{
 		mouseFollowEase(canvas.width/2,canvas.height/2);
 		startButton.update();
+		instructions.update();
 	}
 	scoretf.update();
+	hscoretf.update();
 	
-	question.update();
 	
 	
 
