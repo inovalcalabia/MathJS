@@ -3,7 +3,7 @@ var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
 var fps = 60;
 var previousMouse = 0;
-var speed = 2.4;
+var speed = 1.8;
 var firstDigit = "";
 var secondDigit = "";
 var thirdDigit = "";
@@ -27,7 +27,7 @@ var sadSmiley;
 var gameStatus = "";
 var startButton;
 var instructions;
-
+var posNeg = "";
 
 init = function()
 {
@@ -81,19 +81,23 @@ init = function()
 }
 problem = function()
 {
-	firstDigit =  String(Math.round((1 + Math.random() * 10))) ;
-	secondDigit =  String(Math.round((1 + Math.random() * 10))) ;
-	thirdDigit = String(Math.round((1 + Math.random() * 10))) ;
+	firstDigit =  Math.round((1 + Math.random() * 10)) ;
+	secondDigit =  Math.round((1 + Math.random() * 10)) ;
+	thirdDigit = Math.round((1 + Math.random() * 10)) ;
 	firstOperator = operator[parseInt(Math.random() * operator.length)];
 	secondOperator = operator[parseInt(Math.random() * operator.length)];
 }
 solve = function()
 {
-	var ans = Math.round(eval(firstDigit+firstOperator+ secondDigit + secondOperator + thirdDigit));
+	//var ans = Math.round(eval(firstDigit+firstOperator+ secondDigit + secondOperator + thirdDigit));
+	var f1 = Math.round(formulate(firstOperator,firstDigit,secondDigit));
+	var ans = Math.round(formulate(secondOperator,f1,thirdDigit));
 	if(ans > 0)
-		return ans
+		posNeg = "positive";
 	else 
-		return 0 ;
+		posNeg = "negative";
+
+	return ans
 }
 
 updateQuestion = function()
@@ -101,7 +105,18 @@ updateQuestion = function()
 	problem();
 	question.changeText("("+firstDigit+" "+firstOperator+" "+secondDigit+") "+secondOperator+" "+thirdDigit+" = ?");
 	correctAnswer = solve();
-	console.log("the correct answer: " + correctAnswer);
+	console.log("question","("+firstDigit+" "+firstOperator+" "+secondDigit+") "+secondOperator+" "+thirdDigit+" = ?","the correct answer: " + correctAnswer);
+}
+formulate = function(operator,n1,n2)
+{
+	if(operator == "-")
+		return n1 - n2;
+	else if(operator == "+")
+		return n1 + n2;
+	else if(operator == "*")
+		return n1 * n2
+	else if(operator == "/")
+		return n1 / n2;
 }
 setHighScore = function()
 {
@@ -158,7 +173,12 @@ answerAnimation = function()
 
 choices = function()
 {
-	listAnswers = [solve(),10+parseInt(Math.random() * solve()),20+parseInt(Math.random() * solve())];
+	var one = solve();
+	var two = (posNeg=="positive")?10+parseInt(Math.random() * solve()):-10+parseInt(Math.random() * solve())
+	var three = (posNeg=="positive")?20+parseInt(Math.random() * solve()):-20+parseInt(Math.random() * solve())
+	while(three == two)
+		three = (posNeg=="positive")?20+parseInt(Math.random() * solve()):-20+parseInt(Math.random() * solve())
+	listAnswers = [one,two,three];
 	shuffle(listAnswers);
 	for(j = 0;j<3;j++)
 	{
@@ -186,9 +206,12 @@ showSmiley = function(bool)
 	if(bool)
 	{
 		TweenMax.to(ctx, 1, {onUpdate:function(){happySmiley.update()}});
+		if(speed< 7)
+			speed+= .4;
 	}else
 	{
 		TweenMax.to(ctx, 1, {onUpdate:function(){sadSmiley.update()},onComplete:function(){gameStatus=""}});
+		speed = 1.7;
 	}
 }
 
