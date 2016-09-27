@@ -83,7 +83,7 @@ init = function()
 	instructions.addText("instructions",25,fontName,175,150,'black');
 
 
-	squaro = new rectangle(80,700,60,60,"#B92825");
+	squaro = new rectangle(240,700,60,60,"#B92825");
 	squaroShadow = new rectangle(80,squaro.y + 33,62,5,'rgba(0,0,0,0.5)');
 	updateQuestion();
 	choices();
@@ -245,11 +245,6 @@ squaroJump = function(dest)
 		}*/
 	}
 }
-squaroShadow = function()
-{
-	
-}
-
 //clear the canvas
 clearCanvas = function()
 {
@@ -324,6 +319,7 @@ gameLoop = function()
 	scoretf.update();
 	hscoretf.update();
 	squaro.update();
+	squaroShadow.x = squaro.x;
 	squaroShadow.update();
 }
 
