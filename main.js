@@ -13,7 +13,6 @@ var operator = ["*","/","+","-"];
 var score = 0;
 var hscore = 0;
 var correctAnswer = 0;
-var myAnswer = "";
 var listAnswers = [];
 var rects = [];
 var scoretf;
@@ -28,30 +27,34 @@ var gameStatus = "";
 var startButton;
 var instructions;
 var posNeg = "";
-
+var squaro;
+var positions = [80,240,400]
+var click = false;
+var fontName = "Georgia";
+var currentMouse = 0;
 init = function()
 {
 	for(var i = 0;i<3;i++){
-	var rect = new rectangle(160*i,-800,160,800,'rgba(124,124,124,0.3)')
+	var rect = new rectangle(positions[i],-800,160,800,'rgba(124,124,124,0.3)')
 		rects.push(rect);
 	}
 	problem();
 	correctAnswer = solve();
 
 	question = new textField();
-	question.addText(firstDigit+" "+firstOperator+" "+secondDigit+" "+secondOperator+" "+thirdDigit+" = ?",30,"Arial", 160,50,'black');
+	question.addText(firstDigit+" "+firstOperator+" "+secondDigit+" "+secondOperator+" "+thirdDigit+" = ?",30,fontName, 160,50,'black');
 
 
 	scoretf = new textField();
-	scoretf.addText("Score: "+score,30,"Arial",25,780,'black');
+	scoretf.addText("Score: "+score,30,fontName,25,780,'black');
 
 	hscoretf = new textField();
-	hscoretf.addText("High Score: "+ hscore,30,"Arial",250,780,"black");
+	hscoretf.addText("High Score: "+ hscore,30,fontName,250,780,"black");
 
 	for(i = 0; i<3;i++)
 	{
 		var answer = new textField();
-		answer.addText(""+parseInt(1+Math.random()*98), 50,"Arial",(160 * i)+ 65, -100,'black');
+		answer.addText(""+parseInt(1+Math.random()*98), 50,fontName,(160 * i)+ 65, -100,'black');
 		answer.status = false;
 		answers.push(answer);
 	}
@@ -64,6 +67,10 @@ init = function()
 		mouse.y = evt.y-(hero.getSize()/2)
 		
 	});
+	canvas.addEventListener('click',function(evt){
+		if(gameStatus=="InGame")
+			click = true;
+	});
 
 	happySmiley = new image("assets/correct.png",233-(192/2),396-(192/2),192,192);
 	sadSmiley = new image("assets/wrong.png",233-(192/2),396-(192/2),192,192);
@@ -72,7 +79,10 @@ init = function()
 	newListener({target:startButton,clickCC:function(){gameStatus="InGame"}});
 
 	instructions = new textField();
-	instructions.addText("instructions",25,"Arial",175,150,'black');
+	instructions.addText("instructions",25,"Georgia",175,150,'black');
+
+
+	squaro = new rectangle(80,700,60,60,"#00CC99");
 
 	updateQuestion();
 	choices();
@@ -170,7 +180,6 @@ answerAnimation = function()
 		answers[i].update();
 	}
 }
-
 choices = function()
 {
 	var one = solve();
@@ -189,7 +198,7 @@ choices = function()
 //check if correct answer
 checkAnswer = function()
 {
-	return String(correctAnswer) == String(myAnswer)
+	return String(solve()) == String(listAnswers[currentMouse])
 }
 //follow mouse with easing
 mouseFollowEase = function(x,y)
@@ -214,7 +223,27 @@ showSmiley = function(bool)
 		speed = 1.7;
 	}
 }
+//jump
+squaroJump = function(dest)
+{
+	if(!TweenMax.isTweening(squaro)){
+		TweenMax.to(squaro, .1, {h:30,y:squaro.y + 30,w:squaro.w + 10,x:squaro.x -5, repeat:1, yoyo:true,onComplete:endInitJump});
+		function endInitJump()
+		{
+			var midDest  = ((dest - squaro.x)/2)+squaro.x;
+			TweenMax.to(squaro, .3, {bezier:{values:[{x:midDest, y:620}, {x:dest, y:700}]}, ease:Linear.easeNone,endJump});
 
+		}
+	}
+	function endJump()
+	{
+		/*for(i = 0;i<3;i++)
+		{
+			TweenMax.killTweensOf(answers[i]);
+			answers[i].y = 1000;
+		}*/
+	}
+}
 //clear the canvas
 clearCanvas = function()
 {
@@ -239,6 +268,7 @@ checkMousePosition = function(x)
 	{
 		this.position = 2;
 	}
+	
 	return this.position;
 }
 //shuffle array
@@ -257,23 +287,25 @@ gameLoop = function()
 
 	clearCanvas();
 	
-	
 	if(gameStatus == "InGame"){
-		var currentMouse = checkMousePosition(hero.x);
-		if(previousMouse != currentMouse)
-		{
-			TweenMax.to(rects[previousMouse], .5, {y:800});
-			previousMouse = currentMouse;
-			TweenMax.to(rects[currentMouse], .5, {y:600});
-			myAnswer = listAnswers[currentMouse];
-		}
+		currentMouse = checkMousePosition(hero.x);
+		if(click){
+			if(previousMouse != currentMouse )
+			{
+				TweenMax.to(rects[previousMouse], .5, {y:800});
+				previousMouse = currentMouse;
+				TweenMax.to(rects[currentMouse], .5, {y:600});
+				squaroJump(positions[currentMouse]);
+			}
+			click = false;
+		}	
 		for(j = 0;j<3;j++)
 		{
 			if(rects[j].y >799){
 				TweenMax.killTweensOf(rects[j]);
 				rects[j].y = -800;
 			}
-			rects[j].update();
+			//rects[j].update();
 		}
 		mouseFollowEase(mouse.x,mouse.y);
 		answerAnimation();
@@ -285,6 +317,7 @@ gameLoop = function()
 	}
 	scoretf.update();
 	hscoretf.update();
+	squaro.update();
 }
 
 init();

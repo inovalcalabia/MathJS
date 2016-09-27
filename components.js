@@ -106,7 +106,7 @@ var rectangle = function(_x,_y,_w,_h,_color)
 
     this.update = function(){
         ctx.fillStyle = this.color;
-        ctx.fillRect(this.x,this.y,this.w,this.h);
+        ctx.fillRect(this.x - (this.w/2), this.y-(this.h/2),this.w,this.h);
         ctx.stroke();
     }
 }
