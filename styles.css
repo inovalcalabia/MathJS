@@ -1,0 +1,10 @@
+#canvas
+{
+	border:0px solid #d3d3d3;
+	background-color: #62C2B7;
+	overflow:hidden;
+}
+@font-face {
+    font-family: 'sertig';
+    src: url('assets/font/Sertig.otf');
+}

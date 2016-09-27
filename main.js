@@ -28,9 +28,10 @@ var startButton;
 var instructions;
 var posNeg = "";
 var squaro;
+var squaroShadow;
 var positions = [80,240,400]
 var click = false;
-var fontName = "Georgia";
+var fontName = "sertig";
 var currentMouse = 0;
 init = function()
 {
@@ -42,7 +43,7 @@ init = function()
 	correctAnswer = solve();
 
 	question = new textField();
-	question.addText(firstDigit+" "+firstOperator+" "+secondDigit+" "+secondOperator+" "+thirdDigit+" = ?",30,fontName, 160,50,'black');
+	question.addText(firstDigit+" "+firstOperator+" "+secondDigit+" "+secondOperator+" "+thirdDigit+" = ?",30,fontName, 160,50,'white');
 
 
 	scoretf = new textField();
@@ -54,7 +55,7 @@ init = function()
 	for(i = 0; i<3;i++)
 	{
 		var answer = new textField();
-		answer.addText(""+parseInt(1+Math.random()*98), 50,fontName,(160 * i)+ 65, -100,'black');
+		answer.addText(""+parseInt(1+Math.random()*98), 50,fontName,(160 * i)+ 65, -100,'white');
 		answer.status = false;
 		answers.push(answer);
 	}
@@ -79,11 +80,11 @@ init = function()
 	newListener({target:startButton,clickCC:function(){gameStatus="InGame"}});
 
 	instructions = new textField();
-	instructions.addText("instructions",25,"Georgia",175,150,'black');
+	instructions.addText("instructions",25,fontName,175,150,'black');
 
 
-	squaro = new rectangle(80,700,60,60,"#00CC99");
-
+	squaro = new rectangle(80,700,60,60,"#B92825");
+	squaroShadow = new rectangle(80,squaro.y + 33,62,5,'rgba(0,0,0,0.5)');
 	updateQuestion();
 	choices();
 	setHighScore();
@@ -244,6 +245,11 @@ squaroJump = function(dest)
 		}*/
 	}
 }
+squaroShadow = function()
+{
+	
+}
+
 //clear the canvas
 clearCanvas = function()
 {
@@ -318,6 +324,7 @@ gameLoop = function()
 	scoretf.update();
 	hscoretf.update();
 	squaro.update();
+	squaroShadow.update();
 }
 
 init();
