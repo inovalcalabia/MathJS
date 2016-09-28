@@ -1,7 +1,7 @@
 #canvas
 {
 	border:0px solid #d3d3d3;
-	background-color: #62C2B7;
+	background: linear-gradient(#26b5ac, #95D1C5);
 	overflow:hidden;
 }
 @font-face {

@@ -28,7 +28,7 @@ var object = {
 
 var boundaries = {
     bounds:function(target,mouse){
-        if(mouse.x < target.x + (target.w/2) && mouse.x > target.x- (target.w/2) && mouse.y < target.y + (target.h/2) && mouse.y > target.y-(target.h/2)){
+        if(mouse.x > target.x - (target.w/2) && mouse.y > target.y - (target.h/2) && mouse.x < target.x + (target.w/2) && mouse.y < target.y + (target.h/2)){
             return true;
         }
         else{
@@ -107,7 +107,7 @@ var rectangle = function(_x,_y,_w,_h,_color)
     this.update = function(){
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x - (this.w/2), this.y-(this.h/2),this.w,this.h);
-        ctx.stroke();
+       
     }
 }
 rectangle.prototype = object;
@@ -156,10 +156,11 @@ var button = function(srcUp,srcDown,x,y,w,h)
 }
 
 
-var listeners = function({target=null,clickCC=function(){},downCC=function(){},moveCC=function(){},upCC=function(){}})
+var listeners = function({target=null,clickCC=function(){},downCC=function(){},moveCC=function(){},upCC=function(){},overCC=function(){},outCC=function(){}})
 {
     var self = this;
     var target = target;
+    var canOut = false;
     canvas.addEventListener('click', clickHandler);
     canvas.addEventListener('mousedown',downHandler);
     canvas.addEventListener('mousemove',moveHandler);
@@ -167,6 +168,7 @@ var listeners = function({target=null,clickCC=function(){},downCC=function(){},m
 
     function clickHandler(event)
     {
+
         if(self.bounds(target,event))
           clickCC(event);
     }
@@ -177,20 +179,26 @@ var listeners = function({target=null,clickCC=function(){},downCC=function(){},m
     }
     function moveHandler(event)
     {
-        if(self.bounds(target,event))
-         moveCC(event);
+        if(self.bounds(target,event)){
+            moveCC(event);
+            overCC(event);
+        }else{
+            outCC(event);
+        }
+
     }
     function upHandler(event)
     {
         if(self.bounds(target,event))
           upCC(event);
     }
+   
 }
 
 listeners.prototype = boundaries;
 
-function newListener({target=null,clickCC=function(){},downCC=function(){},moveCC=function(){},upCC=function(){}})
+function newListener({target=null,clickCC=function(){},downCC=function(){},moveCC=function(){},upCC=function(){},overCC=function(){},outCC=function(){}})
 {
-     var newListener = new listeners({target:target,clickCC:clickCC,downCC:downCC,moveCC:moveCC,upCC:upCC});
+     var newListener = new listeners({target:target,clickCC:clickCC,downCC:downCC,moveCC:moveCC,upCC:upCC,overCC:overCC,outCC:outCC});
 }
 

@@ -25,14 +25,23 @@ var happySmiley;
 var sadSmiley;
 var gameStatus = "";
 var startButton;
-var instructions;
+var instructionBackground;
+var instruction;
+var instructions = [];
+var instructionTF = ["Instructions","Click column to select answer","Click the square to confirm the answer"];
 var posNeg = "";
 var squaro;
 var squaroShadow;
 var positions = [80,240,400]
 var click = false;
 var fontName = "sertig";
-var currentMouse = 0;
+var currentMouse = 1;
+var timerBar;
+var timerBarOutline;
+var confirmBtn;
+var playTF;
+var lineBoundary;
+var lineBoundaries = []
 init = function()
 {
 	for(var i = 0;i<3;i++){
@@ -43,14 +52,14 @@ init = function()
 	correctAnswer = solve();
 
 	question = new textField();
-	question.addText(firstDigit+" "+firstOperator+" "+secondDigit+" "+secondOperator+" "+thirdDigit+" = ?",30,fontName, 160,50,'white');
+	question.addText(firstDigit+" "+firstOperator+" "+secondDigit+" "+secondOperator+" "+thirdDigit+" = ?",26,fontName, 175,-100,'white');
 
 
 	scoretf = new textField();
-	scoretf.addText("Score: "+score,30,fontName,25,780,'black');
+	scoretf.addText("Score: "+score,22,fontName,10,30,'white');
 
 	hscoretf = new textField();
-	hscoretf.addText("High Score: "+ hscore,30,fontName,250,780,"black");
+	hscoretf.addText("High Score: "+ hscore,22,fontName,10,55,"white");
 
 	for(i = 0; i<3;i++)
 	{
@@ -68,6 +77,8 @@ init = function()
 		mouse.y = evt.y-(hero.getSize()/2)
 		
 	});
+
+
 	canvas.addEventListener('click',function(evt){
 		if(gameStatus=="InGame")
 			click = true;
@@ -77,18 +88,50 @@ init = function()
 	sadSmiley = new image("assets/wrong.png",233-(192/2),396-(192/2),192,192);
 
 	startButton = new button("assets/play_down.png","assets/play_up.png",canvas.width/2,canvas.height/2,215,71);
-	newListener({target:startButton,clickCC:function(){gameStatus="InGame"}});
+	
+	instructionBackground = new circle(240,320,'rgba(125,125,125,0.7)',200);
 
-	instructions = new textField();
-	instructions.addText("instructions",25,fontName,175,150,'black');
+	for(i = 0;i<instructionTF.length;i++){
+		instruction = new textField();
+
+		instruction.addText(instructionTF[i],25,fontName,190,160+(i*40),'white');
+		instruction.addText(instructionTF[i],25,fontName,248-(instruction.getWidth()+10/2),270+(i*40),'white');
+		instructions.push(instruction);
+		
+	}
+
+	squaro = new rectangle(240,710,60,60,"#B92825");
+	squaroShadow = new rectangle(80,squaro.y + 33,62,5,'rgba(0,0,0,0.8)');
+	newListener({target:squaro,clickCC:function(){if(gameStatus != "InGame"){gameStatus="InGame";}else{confirmAnswer()}},overCC:function(){document.getElementById('canvas').style.cursor = 'pointer';},outCC:function(){document.getElementById('canvas').style.cursor = 'auto'}});
 
 
-	squaro = new rectangle(240,700,60,60,"#B92825");
-	squaroShadow = new rectangle(80,squaro.y + 33,62,5,'rgba(0,0,0,0.5)');
+	playTF = new textField();
+	playTF.addText("PLAY",20,fontName,squaro.x - 19,squaro.y+7,'white');
+
+	timerBar = new rectangle(240,770,400,10,"#38AAA0")
+	timerBarOutline = new rectangle(240,770	,405,15,"#D7D7D7")
+	
+	
+	//TweenMax.to(timerBar,10,{w:0, ease:Linear.easeNone,repeat:-1});
+	
 	updateQuestion();
 	choices();
 	setHighScore();
+	createBoundary();
 
+}
+createBoundary = function()
+{
+	for(i = 1;i<3;i++){
+		lineBoundary =new rectangle(160 * i,400,5,800,"white");
+		lineBoundaries.push(lineBoundary);
+	}
+}
+updateBoundary = function()
+{
+	for(i = 0;i<lineBoundaries.length;i++){
+		lineBoundaries[i].update();
+	}
 }
 problem = function()
 {
@@ -172,14 +215,45 @@ answerAnimation = function()
 			}
 		}
 		if(!answers[i].status){
-			TweenMax.to(answers[i], 3, {y:100, ease:Sine.easeIn});
+			TweenMax.to(question, .5, {y:150, ease:Sine.easeOut});
+			TweenMax.to(answers[i], .5, {y:300, ease:Sine.easeOut});
 			answers[i].status = true;
 		}else{
-			if(!TweenMax.isTweening(answers[i]))
-			answers[i].setPosition(answers[i].getPosX(),answers[i].getPosY() + speed)
+			//if(!TweenMax.isTweening(answers[i]))
+			//answers[i].setPosition(answers[i].getPosX(),answers[i].getPosY() + speed)
 		}
 		answers[i].update();
 	}
+}
+confirmAnswer = function()
+{
+	if(checkAnswer())
+	{
+		score = score + 5;
+		reInitQuestion();
+	}else
+	{
+		score = 0;
+		console.log('wrong');
+		squaroJump(positions[1]);
+		gameStatus="";
+		click = false;
+		checkHighScore();
+		updateQuestion();
+		choices();
+	}
+	scoretf.changeText("Score: "+score);
+}
+reInitQuestion = function()
+{
+	updateQuestion();
+	choices();
+	for(i = 0;i<answers.length;i++){
+		answers[i].y = -100;
+		TweenMax.to(answers[i], .5, {y:300, ease:Sine.easeOut});
+	}
+	question.y = -100;
+	TweenMax.to(question, .5, {y:150, ease:Sine.easeOut});
 }
 choices = function()
 {
@@ -208,7 +282,7 @@ mouseFollowEase = function(x,y)
 	var dy = hero.getPosY() - y;
 	var ease = 5;
 	hero.setPosition(hero.getPosX() - dx/ease,hero.getPosY() -dy/ease);
-	hero.update();
+	//hero.update();
 }
 //show smiley
 showSmiley = function(bool)
@@ -227,24 +301,17 @@ showSmiley = function(bool)
 //jump
 squaroJump = function(dest)
 {
-	if(!TweenMax.isTweening(squaro)){
-		TweenMax.to(squaro, .1, {h:30,y:squaro.y + 30,w:squaro.w + 10,x:squaro.x -5, repeat:1, yoyo:true,onComplete:endInitJump});
+	if(!TweenMax.isTweening(squaro) && gameStatus == "InGame"){
+		TweenMax.to(squaro, .1, {h:30,y:squaro.y + 15,w:squaro.w + 10,x:squaro.x -5, repeat:1, yoyo:true,onComplete:endInitJump});
 		function endInitJump()
 		{
 			var midDest  = ((dest - squaro.x)/2)+squaro.x;
-			TweenMax.to(squaro, .3, {bezier:{values:[{x:midDest, y:620}, {x:dest, y:700}]}, ease:Linear.easeNone,endJump});
+			TweenMax.to(squaro, .3, {bezier:{values:[{x:midDest, y:620}, {x:dest, y:710}]}, ease:Linear.easeNone});
 
 		}
 	}
-	function endJump()
-	{
-		/*for(i = 0;i<3;i++)
-		{
-			TweenMax.killTweensOf(answers[i]);
-			answers[i].y = 1000;
-		}*/
-	}
 }
+
 //clear the canvas
 clearCanvas = function()
 {
@@ -287,17 +354,17 @@ gameLoop = function()
 {
 
 	clearCanvas();
-	
+	updateBoundary();
+	squaro.update();	
+	squaroShadow.x = squaro.x;
+	squaroShadow.update();
 	if(gameStatus == "InGame"){
-		currentMouse = checkMousePosition(hero.x);
 		if(click){
-			if(previousMouse != currentMouse )
-			{
-				TweenMax.to(rects[previousMouse], .5, {y:800});
-				previousMouse = currentMouse;
-				TweenMax.to(rects[currentMouse], .5, {y:600});
-				squaroJump(positions[currentMouse]);
-			}
+			currentMouse = checkMousePosition(hero.x);
+			TweenMax.to(rects[previousMouse], .5, {y:800});
+			previousMouse = currentMouse;
+			TweenMax.to(rects[currentMouse], .5, {y:600});
+			squaroJump(positions[currentMouse]);
 			click = false;
 		}	
 		for(j = 0;j<3;j++)
@@ -313,14 +380,22 @@ gameLoop = function()
 		question.update();
 	}else{
 		mouseFollowEase(canvas.width/2,canvas.height/2);
-		startButton.update();
-		instructions.update();
+		//startButton.update();
+		playTF.update();
+		instructionBackground.update();
+		for(i = 0;i<instructions.length;i++){
+			instructions[i].update();
+		}
 	}
+	playTF.x = squaro.x - 19;
+	playTF.y = squaro.y + 7;
 	scoretf.update();
 	hscoretf.update();
-	squaro.update();
-	squaroShadow.x = squaro.x;
-	squaroShadow.update();
+	
+	timerBarOutline.update();
+	timerBar.update();
+
+	
 }
 
 init();
