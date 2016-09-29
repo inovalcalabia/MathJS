@@ -96,18 +96,29 @@ var circle = function(_posX,_posY,_color,_size){
 circle.prototype = object;
 
 
-var rectangle = function(_x,_y,_w,_h,_color)
+var rectangle = function(_x,_y,_w,_h,_color,_rotation)
 {
     this.color = _color;
     this.x = _x;
     this.y = _y;
     this.w = _w;
     this.h = _h;
-
+    this.rotation = _rotation;
     this.update = function(){
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x - (this.w/2), this.y-(this.h/2),this.w,this.h);
-       
+        ctx.save();
+        if(this.rotation != undefined){
+          
+
+            ctx.translate(this.x,this.y);
+            ctx.rotate(this.rotation*Math.PI/180);
+            ctx.fillStyle = this.color;
+            ctx.fillRect(0 - (this.w/2), 0-(this.h/2),this.w,this.h);
+            
+        }else{
+            ctx.fillStyle = this.color;
+            ctx.fillRect(this.x - (this.w/2), this.y-(this.h/2),this.w,this.h);
+         }
+         ctx.restore();
     }
 }
 rectangle.prototype = object;

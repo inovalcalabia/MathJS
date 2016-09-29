@@ -28,7 +28,7 @@ var startButton;
 var instructionBackground;
 var instruction;
 var instructions = [];
-var instructionTF = ["Instructions","Click column to select answer","Click the square to confirm the answer"];
+var instructionTF = ["Instructions","* Click column to select answer","* All answers will be rounded"];
 var posNeg = "";
 var squaro;
 var squaroShadow;
@@ -41,7 +41,8 @@ var timerBarOutline;
 var confirmBtn;
 var playTF;
 var lineBoundary;
-var lineBoundaries = []
+var lineBoundaries = [];
+var popTF;
 init = function()
 {
 	for(var i = 0;i<3;i++){
@@ -89,20 +90,21 @@ init = function()
 
 	startButton = new button("assets/play_down.png","assets/play_up.png",canvas.width/2,canvas.height/2,215,71);
 	
-	instructionBackground = new circle(240,320,'rgba(125,125,125,0.7)',200);
+	instructionBackground = new circle(240,320,'rgba(125,125,125,0.8)',200);
 
 	for(i = 0;i<instructionTF.length;i++){
 		instruction = new textField();
 
 		instruction.addText(instructionTF[i],25,fontName,190,160+(i*40),'white');
-		instruction.addText(instructionTF[i],25,fontName,248-(instruction.getWidth()+10/2),270+(i*40),'white');
+		instruction.addText(instructionTF[i],25,fontName,248-(instruction.getWidth()+10/2),275+(i*40),'white');
 		instructions.push(instruction);
 		
 	}
 
-	squaro = new rectangle(240,710,60,60,"#B92825");
+	squaro = new rectangle(240,710,60,60,"#B92825",0);
+	//TweenMax.to(squaro,.2,{rotation:180});
 	squaroShadow = new rectangle(80,squaro.y + 33,62,5,'rgba(0,0,0,0.8)');
-	newListener({target:squaro,clickCC:function(){if(gameStatus != "InGame"){gameStatus="InGame";}else{confirmAnswer()}},overCC:function(){document.getElementById('canvas').style.cursor = 'pointer';},outCC:function(){document.getElementById('canvas').style.cursor = 'auto'}});
+	newListener({target:squaro,clickCC:function(){if(gameStatus != "InGame"){gameStatus="InGame";restartTimer()}else{}},overCC:function(){document.getElementById('canvas').style.cursor = 'pointer';},outCC:function(){document.getElementById('canvas').style.cursor = 'auto'}});
 
 
 	playTF = new textField();
@@ -111,7 +113,8 @@ init = function()
 	timerBar = new rectangle(240,770,400,10,"#38AAA0")
 	timerBarOutline = new rectangle(240,770	,405,15,"#D7D7D7")
 	
-	
+	popTF = new textField();
+	popTF.addText("CORRECT!",22,fontName,squaro.x - 40,squaro.y-45,"white");
 	//TweenMax.to(timerBar,10,{w:0, ease:Linear.easeNone,repeat:-1});
 	
 	updateQuestion();
@@ -153,7 +156,24 @@ solve = function()
 
 	return ans
 }
-
+restartTimer = function()
+{
+	TweenMax.killTweensOf(timerBar);
+	var timeCount = 5;
+	timerBar.w = 400
+	TweenMax.to(timerBar,timeCount,{w:0, ease:Linear.easeNone,onComplete:endTime});
+	function endTime()
+	{
+		timerBar.w = 400;
+		score = 0;
+		squaroJump(positions[1]);
+		gameStatus="";
+		click = false;
+		checkHighScore();
+		updateQuestion();
+		choices();
+	}
+}
 updateQuestion = function()
 {
 	problem();
@@ -231,8 +251,12 @@ confirmAnswer = function()
 	{
 		score = score + 5;
 		reInitQuestion();
+		restartTimer();
+		popCorrectTF();
 	}else
 	{
+		TweenMax.killTweensOf(timerBar);
+		timerBar.w = 400;
 		score = 0;
 		console.log('wrong');
 		squaroJump(positions[1]);
@@ -260,8 +284,10 @@ choices = function()
 	var one = solve();
 	var two = (posNeg=="positive")?10+parseInt(Math.random() * solve()):-10+parseInt(Math.random() * solve())
 	var three = (posNeg=="positive")?20+parseInt(Math.random() * solve()):-20+parseInt(Math.random() * solve())
-	while(three == two)
+	while(three == two || three == one)
 		three = (posNeg=="positive")?20+parseInt(Math.random() * solve()):-20+parseInt(Math.random() * solve())
+	while(two == one || two == three)
+		two = (posNeg=="positive")?10+parseInt(Math.random() * solve()):-10+parseInt(Math.random() * solve())
 	listAnswers = [one,two,three];
 	shuffle(listAnswers);
 	for(j = 0;j<3;j++)
@@ -269,6 +295,15 @@ choices = function()
 		answers[j].changeText(""+listAnswers[j]);
 	}
 
+}
+//pop correct answe animatin
+popCorrectTF = function()
+{
+	if(gameStatus != ""){
+		popTF.y = squaro.y-10;
+		popTF.x = squaro.x-40;
+		TweenMax.to(popTF,.4,{y:popTF.y -80, ease:Sine.easeOut,onUpdate:function(){popTF.update();}});
+	}
 }
 //check if correct answer
 checkAnswer = function()
@@ -306,9 +341,19 @@ squaroJump = function(dest)
 		function endInitJump()
 		{
 			var midDest  = ((dest - squaro.x)/2)+squaro.x;
-			TweenMax.to(squaro, .3, {bezier:{values:[{x:midDest, y:620}, {x:dest, y:710}]}, ease:Linear.easeNone});
+			if(squaro.x > midDest)
+				TweenMax.to(squaro, .2, {rotation:-90,delay:.05});
+			else
+				TweenMax.to(squaro, .2, {rotation:90, delay:.05});
+
+			TweenMax.to(squaro, .3, {bezier:{values:[{x:midDest, y:610}, {x:dest, y:710}]}, ease:Linear.easeNone,onComplete:resetRotation});
 
 		}
+	}
+	function resetRotation()
+	{
+		squaro.rotation = 0;
+		confirmAnswer();
 	}
 }
 
