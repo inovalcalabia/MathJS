@@ -43,6 +43,9 @@ var playTF;
 var lineBoundary;
 var lineBoundaries = [];
 var popTF;
+var time = {sec:5,milli:0}
+var timeTF;
+var timeCount = 5;
 init = function()
 {
 	for(var i = 0;i<3;i++){
@@ -117,6 +120,9 @@ init = function()
 	popTF.addText("CORRECT!",22,fontName,squaro.x - 40,squaro.y-45,"white");
 	//TweenMax.to(timerBar,10,{w:0, ease:Linear.easeNone,repeat:-1});
 	
+	timeTF = new textField();
+	timeTF.addText(time.sec +":"+time.milli,17,fontName,230,795,"white");
+
 	updateQuestion();
 	choices();
 	setHighScore();
@@ -159,9 +165,10 @@ solve = function()
 restartTimer = function()
 {
 	TweenMax.killTweensOf(timerBar);
-	var timeCount = 5;
+
 	timerBar.w = 400
 	TweenMax.to(timerBar,timeCount,{w:0, ease:Linear.easeNone,onComplete:endTime});
+	timerTF();
 	function endTime()
 	{
 		timerBar.w = 400;
@@ -172,6 +179,24 @@ restartTimer = function()
 		checkHighScore();
 		updateQuestion();
 		choices();
+	
+
+	}
+}
+//timerTF
+timerTF = function()
+{
+	time.sec = timeCount;
+	TweenMax.to(time, 0, {milli:0,onComplete:endMilli});
+
+	function endMilli()
+	{
+		if(time.sec > 0)
+		{
+			time.milli = 100;
+			time.sec = time.sec-1;
+			TweenMax.to(time, 1, {milli:0,onComplete:endMilli});
+		}
 	}
 }
 updateQuestion = function()
@@ -258,13 +283,17 @@ confirmAnswer = function()
 		TweenMax.killTweensOf(timerBar);
 		timerBar.w = 400;
 		score = 0;
-		console.log('wrong');
 		squaroJump(positions[1]);
 		gameStatus="";
 		click = false;
 		checkHighScore();
 		updateQuestion();
 		choices();
+
+		time.sec = 5;
+		time.milli = 0;
+		
+		TweenMax.killTweensOf(time);
 	}
 	scoretf.changeText("Score: "+score);
 }
@@ -296,6 +325,7 @@ choices = function()
 	}
 
 }
+
 //pop correct answe animatin
 popCorrectTF = function()
 {
@@ -439,8 +469,8 @@ gameLoop = function()
 	
 	timerBarOutline.update();
 	timerBar.update();
-
-	
+	timeTF.changeText(time.sec +":"+ Math.round(time.milli));
+	timeTF.update();
 }
 
 init();
