@@ -151,6 +151,23 @@ updateBoundary = function()
 		lineBoundaries[i].update();
 	}
 }
+
+incrementScore =function(c_s,t_s,t_field)
+{
+	var score = {current_score:c_s,target_score:t_s};
+	TweenMax.to(score,.5,{current_score:score.target_score,onUpdate:updateTF,onComplete:endInc});
+
+	function updateTF()
+	{
+		t_field.changeText("Score: " + Math.round(score.current_score))
+		t_field.update();
+	}
+	function endInc()
+	{
+		score = score.current_score;
+	}
+}
+
 problem = function()
 {
 	firstDigit =  Math.round((1 + Math.random() * 10)) ;
@@ -253,13 +270,13 @@ answerAnimation = function()
 			answers[i].status = false;
 			if(i >= answers.length-1){
 				if(checkAnswer()){
-					score = score + 5;
-					scoretf.changeText("Score: "+score);
+					//score = score + 5;
+					//scoretf.changeText("Score: "+score);
 				}
 				else{
 					
-					score = 0; 
-					scoretf.changeText("Score: "+score);
+					//score = 0; 
+					//scoretf.changeText("Score: "+score);
 				}
 				checkHighScore();
 				showSmiley(checkAnswer());
@@ -284,17 +301,20 @@ confirmAnswer = function()
 	if(gameStatus == "InGame"){
 		if(checkAnswer())
 		{
-			score = score + 5;
+			var gggg = score + 5;
+			incrementScore(score,gggg,scoretf);
+			//score = score + 5;
 			reInitQuestion();
 			restartTimer();
 			popCorrectTF();
 			checkHighScore();
+
 		}else
 		{
 			
 			TweenMax.killTweensOf(timerBar);
 			timerBar.w = 400;
-			score = 0;
+			incrementScore(score,0,scoretf);
 			currentMouse != 1 ? squaroJump(positions[1]):console.log("do nothing")
 			
 			click = false;
@@ -308,7 +328,7 @@ confirmAnswer = function()
 			gameStatus="";
 		}
 	}
-	scoretf.changeText("Score: "+score);
+	//scoretf.changeText("Score: "+score);
 }
 reInitQuestion = function()
 {
