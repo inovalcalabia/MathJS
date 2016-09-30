@@ -28,7 +28,7 @@ var startButton;
 var instructionBackground;
 var instruction;
 var instructions = [];
-var instructionTF = ["Instructions","* Click column to select answer","* All answers will be rounded"];
+var instructionTF = ["Instruction","* Click column to select answer","* All answers will be rounded"];
 var posNeg = "";
 var squaro;
 var squaroShadow;
@@ -46,8 +46,11 @@ var popTF;
 var time = {sec:5,milli:0}
 var timeTF;
 var timeCount = 5;
+var titleTF;
+var miniSquaro;
 init = function()
-{
+{	
+
 	for(var i = 0;i<3;i++){
 	var rect = new rectangle(positions[i],-800,160,800,'rgba(124,124,124,0.3)')
 		rects.push(rect);
@@ -56,19 +59,19 @@ init = function()
 	correctAnswer = solve();
 
 	question = new textField();
-	question.addText(firstDigit+" "+firstOperator+" "+secondDigit+" "+secondOperator+" "+thirdDigit+" = ?",26,fontName, 175,-100,'white');
+	question.addText(firstDigit+" "+firstOperator+" "+secondDigit+" "+secondOperator+" "+thirdDigit+" = ?",26,fontName, 240,-100,'white');
 
 
 	scoretf = new textField();
-	scoretf.addText("Score: "+score,22,fontName,10,30,'white');
+	scoretf.addText("Score: "+score,22,fontName,40,40,'white');
 
 	hscoretf = new textField();
-	hscoretf.addText("High Score: "+ hscore,22,fontName,10,55,"white");
+	hscoretf.addText("High Score: "+ hscore,22,fontName,70,65,"white");
 
 	for(i = 0; i<3;i++)
 	{
 		var answer = new textField();
-		answer.addText(""+parseInt(1+Math.random()*98), 50,fontName,(160 * i)+ 65, -100,'white');
+		answer.addText(""+parseInt(1+Math.random()*98), 50,fontName,(160 * i)+ 80, -100,'white');
 		answer.status = false;
 		answers.push(answer);
 	}
@@ -88,6 +91,8 @@ init = function()
 			click = true;
 	});
 
+
+
 	happySmiley = new image("assets/correct.png",233-(192/2),396-(192/2),192,192);
 	sadSmiley = new image("assets/wrong.png",233-(192/2),396-(192/2),192,192);
 
@@ -95,33 +100,37 @@ init = function()
 	
 	instructionBackground = new circle(240,320,'rgba(125,125,125,0.8)',200);
 
+	titleTF = new textField();
+	titleTF.addText("SQUARE'O",40,fontName,235 ,210,'white')
+
 	for(i = 0;i<instructionTF.length;i++){
 		instruction = new textField();
 
 		instruction.addText(instructionTF[i],25,fontName,190,160+(i*40),'white');
-		instruction.addText(instructionTF[i],25,fontName,248-(instruction.getWidth()+10/2),275+(i*40),'white');
+		instruction.addText(instructionTF[i],25,fontName,240,(titleTF.y+80)+(i*40),'white');
 		instructions.push(instruction);
 		
 	}
 
+	miniSquaro  = new rectangle(320,186,10,10,"#B92825",0);
 	squaro = new rectangle(240,710,60,60,"#B92825",0);
 	//TweenMax.to(squaro,.2,{rotation:180});
 	squaroShadow = new rectangle(80,squaro.y + 33,62,5,'rgba(0,0,0,0.8)');
-	newListener({target:squaro,clickCC:function(){if(gameStatus != "InGame"){gameStatus="InGame";restartTimer()}else{}},overCC:function(){document.getElementById('canvas').style.cursor = 'pointer';},outCC:function(){document.getElementById('canvas').style.cursor = 'auto'}});
+	newListener({target:squaro,clickCC:function(){if(gameStatus != "InGame"){gameStatus="InGame";restartTimer(); reInitQuestion();}else{}},overCC:function(){document.getElementById('canvas').style.cursor = 'pointer';},outCC:function(){document.getElementById('canvas').style.cursor = 'auto'}});
 
 
 	playTF = new textField();
-	playTF.addText("PLAY",20,fontName,squaro.x - 19,squaro.y+7,'white');
+	playTF.addText("PLAY",20,fontName,squaro.x ,squaro.y+17,'white');
 
 	timerBar = new rectangle(240,770,400,10,"#38AAA0")
 	timerBarOutline = new rectangle(240,770	,405,15,"#D7D7D7")
 	
 	popTF = new textField();
-	popTF.addText("CORRECT!",22,fontName,squaro.x - 40,squaro.y-45,"white");
+	popTF.addText("CORRECT!",22,fontName,squaro.x ,squaro.y-45,"white");
 	//TweenMax.to(timerBar,10,{w:0, ease:Linear.easeNone,repeat:-1});
 	
 	timeTF = new textField();
-	timeTF.addText(time.sec +":"+time.milli,17,fontName,230,795,"white");
+	timeTF.addText(time.sec +":"+time.milli,17,fontName,240,802,"white");
 
 	updateQuestion();
 	choices();
@@ -173,7 +182,7 @@ restartTimer = function()
 	{
 		timerBar.w = 400;
 		score = 0;
-		squaroJump(positions[1]);
+		currentMouse != 1 ? squaroJump(positions[1]):console.log("do nothing")
 		gameStatus="";
 		click = false;
 		checkHighScore();
@@ -272,28 +281,32 @@ answerAnimation = function()
 }
 confirmAnswer = function()
 {
-	if(checkAnswer())
-	{
-		score = score + 5;
-		reInitQuestion();
-		restartTimer();
-		popCorrectTF();
-	}else
-	{
-		TweenMax.killTweensOf(timerBar);
-		timerBar.w = 400;
-		score = 0;
-		squaroJump(positions[1]);
-		gameStatus="";
-		click = false;
-		checkHighScore();
-		updateQuestion();
-		choices();
+	if(gameStatus == "InGame"){
+		if(checkAnswer())
+		{
+			score = score + 5;
+			reInitQuestion();
+			restartTimer();
+			popCorrectTF();
+			checkHighScore();
+		}else
+		{
+			
+			TweenMax.killTweensOf(timerBar);
+			timerBar.w = 400;
+			score = 0;
+			currentMouse != 1 ? squaroJump(positions[1]):console.log("do nothing")
+			
+			click = false;
+			checkHighScore();
+			updateQuestion();
+			choices();
 
-		time.sec = 5;
-		time.milli = 0;
-		
-		TweenMax.killTweensOf(time);
+			time.sec = 5;
+			time.milli = 0;
+			TweenMax.killTweensOf(time);
+			gameStatus="";
+		}
 	}
 	scoretf.changeText("Score: "+score);
 }
@@ -331,8 +344,8 @@ popCorrectTF = function()
 {
 	if(gameStatus != ""){
 		popTF.y = squaro.y-10;
-		popTF.x = squaro.x-40;
-		TweenMax.to(popTF,.4,{y:popTF.y -80, ease:Sine.easeOut,onUpdate:function(){popTF.update();}});
+		popTF.x = squaro.x;
+		TweenMax.to(popTF,.4,{y:popTF.y -100, ease:Sine.easeOut,onUpdate:function(){popTF.update();}});
 	}
 }
 //check if correct answer
@@ -386,7 +399,23 @@ squaroJump = function(dest)
 		confirmAnswer();
 	}
 }
+miniSquaroJump = function(dest)
+{
+	if(!TweenMax.isTweening(miniSquaro) && gameStatus != "InGame"){
+		TweenMax.to(miniSquaro, .4, {h:5,y:miniSquaro.y + 2,w:miniSquaro.w + 1,x:miniSquaro.x -1, repeat:1, yoyo:true,onComplete:endInitJump});
+		function endInitJump()
+		{
+			TweenMax.to(miniSquaro, .2, {rotation:90, delay:.05});
+			TweenMax.to(miniSquaro, .3, {bezier:{values:[{ y:miniSquaro.y-20}, { y:186}]}, ease:Linear.easeNone,onComplete:resetRotation});
 
+		}
+	}
+	function resetRotation()
+	{
+		miniSquaro.rotation = 0;
+		miniSquaroJump();
+	}
+}
 //clear the canvas
 clearCanvas = function()
 {
@@ -461,9 +490,12 @@ gameLoop = function()
 		for(i = 0;i<instructions.length;i++){
 			instructions[i].update();
 		}
+		titleTF.update();
+		miniSquaroJump();
+		miniSquaro.update();
 	}
-	playTF.x = squaro.x - 19;
-	playTF.y = squaro.y + 7;
+	playTF.x = squaro.x ;
+	playTF.y = squaro.y + 17;
 	scoretf.update();
 	hscoretf.update();
 	

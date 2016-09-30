@@ -69,7 +69,7 @@ textField = function()
    	{
    		ctx.font = "bold "+this.fSize+"px "+this.fName;
         ctx.fillStyle = this.color;
-		ctx.fillText(this.currentTf,this.x,this.y);
+		ctx.fillText(this.currentTf,this.x-(this.getWidth()/2),this.y-(this.getHeight()/2));
        
    	}
 }
