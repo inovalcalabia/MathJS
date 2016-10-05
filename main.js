@@ -48,6 +48,7 @@ var timeTF;
 var timeCount = 5;
 var titleTF;
 var miniSquaro;
+
 init = function()
 {	
 
@@ -63,7 +64,7 @@ init = function()
 
 
 	scoretf = new textField();
-	scoretf.addText("Score: "+score,22,fontName,40,40,'white');
+	scoretf.addText("Score: "+score,22,fontName,45,40,'white');
 
 	hscoretf = new textField();
 	hscoretf.addText("High Score: "+ hscore,22,fontName,70,65,"white");
@@ -164,7 +165,7 @@ incrementScore =function(c_s,t_s,t_field)
 	}
 	function endInc()
 	{
-		score = score.current_score;
+		score = t_s;
 	}
 }
 
@@ -269,15 +270,6 @@ answerAnimation = function()
 			
 			answers[i].status = false;
 			if(i >= answers.length-1){
-				if(checkAnswer()){
-					//score = score + 5;
-					//scoretf.changeText("Score: "+score);
-				}
-				else{
-					
-					//score = 0; 
-					//scoretf.changeText("Score: "+score);
-				}
 				checkHighScore();
 				showSmiley(checkAnswer());
 				updateQuestion();
@@ -289,9 +281,6 @@ answerAnimation = function()
 			TweenMax.to(question, .5, {y:150, ease:Sine.easeOut});
 			TweenMax.to(answers[i], .5, {y:300, ease:Sine.easeOut});
 			answers[i].status = true;
-		}else{
-			//if(!TweenMax.isTweening(answers[i]))
-			//answers[i].setPosition(answers[i].getPosX(),answers[i].getPosY() + speed)
 		}
 		answers[i].update();
 	}
@@ -301,14 +290,13 @@ confirmAnswer = function()
 	if(gameStatus == "InGame"){
 		if(checkAnswer())
 		{
-			var gggg = score + 5;
-			incrementScore(score,gggg,scoretf);
-			//score = score + 5;
+			var tempScore = score + 5;
+			incrementScore(score,tempScore,scoretf);
+			score = score+5;
 			reInitQuestion();
 			restartTimer();
 			popCorrectTF();
 			checkHighScore();
-
 		}else
 		{
 			
@@ -316,12 +304,11 @@ confirmAnswer = function()
 			timerBar.w = 400;
 			incrementScore(score,0,scoretf);
 			currentMouse != 1 ? squaroJump(positions[1]):console.log("do nothing")
-			
 			click = false;
 			checkHighScore();
 			updateQuestion();
 			choices();
-
+			score = 0;
 			time.sec = 5;
 			time.milli = 0;
 			TweenMax.killTweensOf(time);
@@ -484,20 +471,18 @@ gameLoop = function()
 	squaroShadow.update();
 	if(gameStatus == "InGame"){
 		if(click){
-			currentMouse = checkMousePosition(hero.x);
-			TweenMax.to(rects[previousMouse], .5, {y:800});
-			previousMouse = currentMouse;
-			TweenMax.to(rects[currentMouse], .5, {y:600});
+			currentMouse = checkMousePosition(mouse.x);
+			TweenMax.to(rects[currentMouse], .7, {y:1200});
 			squaroJump(positions[currentMouse]);
 			click = false;
 		}	
 		for(j = 0;j<3;j++)
 		{
-			if(rects[j].y >799){
+			if(rects[j].y >1199){
 				TweenMax.killTweensOf(rects[j]);
-				rects[j].y = -800;
+				rects[j].y = -400;
 			}
-			//rects[j].update();
+			rects[j].update();
 		}
 		mouseFollowEase(mouse.x,mouse.y);
 		answerAnimation();

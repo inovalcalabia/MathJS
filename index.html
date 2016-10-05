@@ -12,4 +12,31 @@ Your browser does not support the HTML5 canvas tag.</canvas>
 </body>
 </html>
 
-	
+<!-- 
+	 <!DOCTYPE html>
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script>
+	$.ajax({
+  url: "ff",
+  error:function(){console.log("error")},
+  success: function(data){
+  	console.log(data);
+     $(data).find("a").each(function(){
+        var f = $(this).attr("href");
+        console.log(f);
+     });
+  }
+});
+</script>
+</head>
+<body>
+
+<p>If you click on me, I will disappear.</p>
+<p>Click me away!</p>
+<p>Click me too!</p>
+
+</body>
+</html>
+ -->
