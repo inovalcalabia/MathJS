@@ -1,6 +1,6 @@
 
 var canvas = document.getElementById("canvas");
-var ctx = canvas.getContext("2d");
+var ctx = canvas.getContext("webgl");
 var fps = 60;
 var previousMouse = 0;
 var speed = 1.8;
@@ -427,6 +427,7 @@ miniSquaroJump = function(dest)
 clearCanvas = function()
 {
 	ctx.clearRect(0,0,canvas.width,canvas.height);
+	
 }
 //clear high score
 clearHighScore = function()
