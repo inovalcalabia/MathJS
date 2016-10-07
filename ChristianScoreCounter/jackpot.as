@@ -8,51 +8,85 @@
 	public class jackpot extends MovieClip {
 		
 		private var speed:int = 4;
-		private var targetScore:String = "12311111";
-		private var initializeScore:String = "345678911";
+		private var targetScore:String = "";
+		private var initializeScore:String = "";
 		private var tfHeight:int = 27;
+		private var tfWidth:int = 20;
 		private var numArr:Array = new Array();
 		private var positions:Array = new Array();
 		private var currentPositions:Array = new Array();
-		private var numDigits:int = 3;
+		private var numDigits:int = 11;
+		private var totalDigits:int = 11;
+		private var beforeThree:int = 3;
 		private var currentScore:String="";
+		private var decuction:int = 0;
 		public function jackpot() {
-			//trace(initializeScore);
+			jackpotHandler("123456789","223456789");
+		}
+		private function jackpotHandler(initScore:String,tScore:String):void
+		{
+			targetScore="";
+			initializeScore="";
+			var tempArr:Array = [];
+			if(initScore.split("").length > totalDigits){
+				for(var i:int = 0;i<totalDigits;i++)
+				{
+					tempArr.push(initScore.split("")[i]);
+					
+				}
+				initializeScore = tempArr.join("") ;
+			}else{
+				initializeScore = initScore
+			}
+			tempArr=[];
+			if(tScore.split("").length > totalDigits){
+				for(var j:int = 0;j<totalDigits;j++)
+				{
+					tempArr.push(tScore.split("")[j]);
+					
+				}
+				targetScore = tempArr.join("");
+			}else{
+				targetScore = tScore;
+			}
+			
+			decuction = numDigits-initializeScore.split("").length;
+			numDigits = initializeScore.split("").length-(initializeScore.split("").length-beforeThree);
 			positions = [0,-39,-78,-116,-154,-192,-231,-269,-308,-347];
 			
-			numArr = [n1.numbers,n2.numbers,n3.numbers,n4.numbers,n5.numbers,n6.numbers,n7.numbers,n8.numbers,n9.numbers,n10.numbers,n11.numbers];
-			
+			numArr = [jacpot.n1.numbers,jacpot.n2.numbers,jacpot.n3.numbers,
+			jacpot.n4.numbers,jacpot.n5.numbers,jacpot.n6.numbers,jacpot.n7.numbers,jacpot.n8.numbers,jacpot.n9.numbers,
+			jacpot.n10.numbers,jacpot.n11.numbers];
 			initialize(initializeScore);
-			for(var i:int = 0;i<initializeScore..split("").length;i++)
+			for(var k:int = 0;k<initializeScore.split("").length;k++)
 			{
-				currentPositions.push(initializeScore.split("")[i]);
+				currentPositions.push(initializeScore.split("")[k]);
 			}
 			currentScore = initializeScore;
-			for(var j:int =0;j<numArr.length;j++)
-			{
-				numArr[j].visible = false;
-			}
-			for(var k:int = initializeScore.split("").length-1; k>=0; k--)
-			{
-				
-			  numArr[k].visible = true;
-				trace(numArr[k].visible,k);
-			}
+			
 			valGet();
-			//updateScore();
-			//stage.addEventListener(Event.ENTER_FRAME,loop);
+			pointAndDecimal();
+			updateScore();
+			stage.addEventListener(Event.ENTER_FRAME,loop);
+			alignLeft();
+		}
+		private function alignLeft():void
+		{
+			var len:int = totalDigits - targetScore.split("").length;
+			this.x = - len * tfWidth - 7;
 		}
 		private function loop(event:Event):void
 		{
 			valGet();
-			if(numArr[numDigits-1].y < -385){
-				numArr[numDigits-1].y = 0;
+			if(numArr[decuction + beforeThree - 1].y < -385){
+				numArr[decuction + beforeThree - 1].y = 0;
 				
 			}
 			randomizeNumbers();
-			numArr[numDigits-1].y -=speed;
-			for (var i:int = 0; i < numDigits; i++) {
-				if(numArr[i].y  < - 380)
+			
+			numArr[decuction + beforeThree - 1].y -=speed;
+			for (var i:int = 0; i < decuction+beforeThree; i++) {
+				if(numArr[i].y  < -380)
 				{
 					if(!TweenMax.isTweening(numArr[i-1])){
 						TweenMax.to(numArr[i-1], .3, { y:getTargetPosition(int(currentScore.split("")[i-1])+1), ease:Linear.easeNone,onComplete:endAnim,onCompleteParams:[int(currentScore.split("")[i-1])+1,numArr[i-1]]});
@@ -67,21 +101,57 @@
 					}
 				}
 			}
+			compare();
 		}
+		private function compare():void
+		{
+			var fString:String = currentScore.split("")[decuction] +""+ currentScore.split("")[decuction+1] 
+			var sString:String =  targetScore.split("")[0] +""+ targetScore.split("")[1] 
+			if(fString == sString)
+			{
+				var tempCounter:int = beforeThree - 1;
+				for(var i:int = decuction + beforeThree-1;i<totalDigits;i++)
+				{
+					
+					numArr[i].y = getTargetPosition(int(targetScore.split("")[tempCounter]))
+					tempCounter++
+				}
+				stage.removeEventListener(Event.ENTER_FRAME,loop);
+			}
+		}
+		private function pointAndDecimal():void
+		{
+			for(var j:int = 0;j<decuction;j++)
+			{
+				numArr[j].visible = false;
+			}
+			if(initializeScore.split("").length <= 8)
+			{
+				dec1.visible = false;
+			}
+			if(initializeScore.split("").length <= 5)
+			{
+				dec2.visible = false;
+			}
+			if(initializeScore.split("").length <= 2)
+			{
+				dec3.visible = false;
+			}
+		}
+		
 		private function randomizeNumbers():void
 		{
-			for(var i:int = 3;i<11;i++)
+			for(var i:int = decuction + beforeThree;i<totalDigits;i++)
 			{
 				if(numArr[i].y < -385){
 					numArr[i].y = 0;
 				}
 				
-					numArr[i].y -=4;
+					numArr[i].y -=speed;
 			}
 		}
 		private function updateScore():void
 		{
-			
 			currentPositions = [];
 			for(var i:int = 0;i<currentScore.split("").length;i++)
 			{
@@ -92,35 +162,16 @@
 		private function valGet():void
 		{
 			var temp:Array = [];
-			for (var i:int = 0; i < numDigits; i++) {
+			for (var i:int = 0; i < totalDigits; i++) {
 				temp.push(getValue(numArr[i]));
 			}
 			currentScore = temp.join("");
 		}
-		private function joinArrays(array:Array):String
-		{
-			var result:String = "";
-			for(var i:int = 0;i<array.length;i++)
-			{
-				result += array[i].join() + "\n";
-			}
-			return result;
-		}
-		private function goTo():void
-		{
-			for(var i:int = 0;i<numArr.length;i++)
-			{
-				if(numArr[numArr.length-1].y < -385)
-				{
-					TweenLite.to(numArr[numArr.length-2], 1, {x:65, y:117});
-				}
-			}
-		}
 		private function initialize(num:String):void
 		{
-			for(var i:int = 0;i<num.split("").length;i++)
+			for(var i:int = decuction;i<11;i++)
 			{
-				setNumber(num.split("")[i],numArr[i]);
+				setNumber(num.split("")[i-decuction],numArr[i]);
 			}
 		}
 		private function getValue(target:Object):int
